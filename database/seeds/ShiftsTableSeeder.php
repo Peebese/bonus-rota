@@ -15,51 +15,68 @@ class ShiftsTableSeeder extends Seeder
     {
         $carbonDateObj = new Carbon();
 
-        $staffTable   = DB::table('staff')->select(['id']);
-        $blackId      = $staffTable->where(['first_name' => 'black']);
-        $thorId       = $staffTable->where(['first_name' => 'thor']);
-        $wolverineId  = $staffTable->where(['first_name' => 'wolverine']);
-        $gamoraId     = $staffTable->where(['first_name' => 'gamora']);
+        $blackId        = DB::table('staff')->select()->where(['first_name' => 'Black'])->first()->id;
+        $thorId         = DB::table('staff')->select()->where(['first_name' => 'Thor'])->first()->id;
+        $wolverineId    = DB::table('staff')->select()->where(['first_name' => 'Wolverine'])->first()->id;
+        $gamoraId       = DB::table('staff')->select()->where(['first_name' => 'Gamora'])->first()->id;
+
+
+        $rotaId = DB::table('rotas')
+            ->select()
+            ->where(['name' => 'FunHouse'])
+            ->leftJoin('shops','rotas.shop_id','=','shops.id')
+            ->first()->id;
+
+//        dd([
+//            $blackId, $thorId, $wolverineId, $gamoraId, $rotaId
+//        ]);
 
         $data = [
             // Monday, Black widow works alone
             [
                 'staff_id'      => $blackId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,7,9,0,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,7, 18,0,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,7,9,0,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,7, 18,0,0)->toDateTimeString()
             ],
             // Tuesday, Black and thor
             [
                 'staff_id'      => $blackId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,8,9,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,8,14,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,8,9,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,8,14,0)->toDateTimeString()
             ],
             [
                 'staff_id'      => $thorId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,8,14,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,8,22,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,8,14,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,8,22,0)->toDateTimeString()
             ],
             // Wednesday, Wolverine and Gamora
             [
                 'staff_id'      => $wolverineId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,9,9,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,9,18,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,9,9,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,9,18,0)->toDateTimeString()
             ],
             [
                 'staff_id'      => $gamoraId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,9,12,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,9,22,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,9,12,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,9,22,0)->toDateTimeString()
             ],
             // Thursday, Wolverine and Gamora
             [
                 'staff_id'      => $wolverineId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,10,9,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,10,18,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,10,9,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,10,18,0)->toDateTimeString()
             ],
             [
                 'staff_id'      => $gamoraId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,10,9,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,10,18,0)
+                'rota_id'       => $rotaId,
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,10,9,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,10,18,0)->toDateTimeString()
             ]
         ];
 

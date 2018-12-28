@@ -22,14 +22,17 @@ class StaffTableSeeder extends Seeder
             ],
             [
                 'first_name' => 'Thor',
+                'surname'   => 'surname',
                 'shop_id'   => self::SHOP_ID
             ],
             [
                 'first_name' => 'Wolverine',
+                'surname'   => 'surname',
                 'shop_id'   => self::SHOP_ID
             ],
             [
                 'first_name' => 'Gamora',
+                'surname'   => 'surname',
                 'shop_id'   => self::SHOP_ID
             ]
         ]);

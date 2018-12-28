@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\DB;
 
 class ShiftBreaksTableSeeder extends Seeder
 {
-
     /**
      * Run the database seeds.
      *
@@ -17,14 +16,23 @@ class ShiftBreaksTableSeeder extends Seeder
         $carbonDateObj = new Carbon();
         $dateDay = 10;
 
-        $querySelectShiftId = DB::table('shifts')->select(['id']);
-        $wolverineShiftId  = $querySelectShiftId->where(['first_name' => 'wolverine'])
+        $wolverineShiftId  = DB::table('shifts')
+            ->select()
+            ->where(['first_name' => 'Wolverine'])
             ->whereDay('start_time','=', $dateDay)
-            ->leftJoin('staff', 'shifts.staff_id','=','staff.id');
+            ->leftJoin('staff', 'shifts.staff_id','=','staff.id')
+            ->first()->id
+        ;
 
-        $gamoraShiftId     = $querySelectShiftId->where(['first_name' => 'gamora'])
+        //dd($wolverineShiftId);
+
+        $gamoraShiftId  = DB::table('shifts')
+            ->select(['shifts.id'])
+            ->where(['first_name' => 'Gamora'])
             ->whereDay('start_time', '=', $dateDay)
-            ->leftJoin('staff', 'shifts.staff_id','=','staff.id');
+            ->leftJoin('staff', 'shifts.staff_id','=','staff.id')
+            ->first()->id
+        ;
 
         $data = [
             [
