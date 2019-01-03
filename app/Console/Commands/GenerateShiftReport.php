@@ -39,7 +39,8 @@ class GenerateShiftReport extends Command
      */
     public function handle()
     {
-        $getShifts = ShiftReportHelper::generateShiftMannedReport();
+        $getShifts = new ShiftReportHelper();
+        $getShifts->generateShiftMannedReport();
 
         //$this->info('lol');
     }

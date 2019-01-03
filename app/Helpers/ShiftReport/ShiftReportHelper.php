@@ -9,39 +9,53 @@ use DateTime;
 
 class ShiftReportHelper
 {
-    protected static function calculateSingleMannedHours(array $shifts) : bool
-    {
-        $formattedShifts = self::formatWithBreaks($shifts);
+    /**
+     * @var array
+     */
+    protected $singleMannedHoursCollection = [];
 
-        $singleMannedHoursCollection = [];
-        $singleHoursNonOverlapCollection = [];
+    /**
+     * @var array
+     */
+    protected $singleHoursNonOverlapCollection = [];
+
+    /**
+     * @var array
+     */
+    protected $soloShiftDurations = [];
+
+    /**
+     * @param array $shifts
+     *
+     * @return array
+     */
+    protected function formatSolodayShiftDurations(array $shifts) : array
+    {
+        $daySoloShifts = $this->getDaysSoloShifts($shifts);
+        return $this->getDurationOfShifts($daySoloShifts);
+    }
+
+    /**
+     * @param array $shifts
+     *
+     * @return bool
+     */
+    protected function calculateSingleMannedHours(array $shifts) : bool
+    {
         $recordOverlap = [];
         $recordNonOverlap = [];
         $overLap = false;
 
-        $weekdaysTotalSingleHours = [];
+        foreach ($shifts as $aShift) {
 
-       $shiftValueCount = self::getSoloShiftDays($formattedShifts);
-       $soloShiftDurations = self::getDurationOfShifts($shiftValueCount);
-       //echo '$soloShiftDurations';
-       //var_dump($soloShiftDurations);
-       $soloShiftDayTotalHours = self::calculateTotalHoursSoloShiftDay($soloShiftDurations);
-
-
-        //dd($soloShiftDurations);
-
-        foreach ($formattedShifts as $aShift) {
-
-            $soloShiftDay = false;
-
-            foreach ($formattedShifts as $bShift) {
+            foreach ($shifts as $bShift) {
 
                 if ($bShift['has_break_shift'] || $aShift['has_break_shift']) {
                     continue;
                 }
 
-                $dateOne = date('d',strtotime($aShift['start_time']));
-                $dateTwo = date('d',strtotime($bShift['start_time']));
+                $dateOne = self::formatShiftDay($aShift['start_time']);
+                $dateTwo = self::formatShiftDay($bShift['start_time']);
 
                 if (($dateOne === $dateTwo)
                     && ($aShift['first_name'] !== $bShift['first_name'])) {
@@ -51,7 +65,6 @@ class ShiftReportHelper
                         && $aShift['timeOfDay'] !== $bShift['timeOfDay']){
 
                         continue;
-
                     }
 
                     $overLap = self::hasOverlap(
@@ -62,39 +75,33 @@ class ShiftReportHelper
                     );
 
                     if ($overLap === true
-                        && !self::isOverlapRecorded($recordOverlap, $aShift, $bShift)) {
+                        && !$this->isOverlapRecorded($recordOverlap, $aShift, $bShift)) {
 
-                        //echo ' $aShift '. $aShift['id'] . ' ' . $aShift['first_name'] . ' ' . $aShift['start_time'] . ' ' . $aShift['end_time']  . PHP_EOL;
-                        //echo ' $bShift '. $bShift['id'] . ' ' . $bShift['first_name'] . ' ' . $bShift['start_time'] . ' ' . $bShift['end_time']  . PHP_EOL;
-
-                        $singleMannedHoursCollection[] = self::calculateSingleMannedTime($aShift, $bShift); //array_merge($singleMannedHoursCollection, );
+                        $this->singleMannedHoursCollection[] = self::calculateSingleMannedTime($aShift, $bShift);
                         $recordOverlap[] = $aShift['id'] . ',' . $bShift['id'];
                     }
 
                     if ($overLap === false
-                        && !isset($aShift['parent_id']) && !self::isOverlapRecorded($recordNonOverlap, $aShift, $bShift)) {
+                        && !isset($aShift['parent_id']) && !$this->isOverlapRecorded($recordNonOverlap, $aShift, $bShift)) {
 
-                        $singleHoursNonOverlapCollection[] = self::calculateSingleMannedTime($aShift, $bShift);
+                        $this->singleHoursNonOverlapCollection[] = self::calculateSingleMannedTime($aShift, $bShift);
                         $recordNonOverlap[] = $aShift['id'] . ',' . $bShift['id'];
                     }
                 }
             }
         }
 
-        $dualShiftTotalHours = self::calculateTotalHours($singleMannedHoursCollection);
-        $singleShiftTotalHours = self::calculateTotalHours($singleHoursNonOverlapCollection);
+        $weekdaysTotalSingleHours = [];
+        $this->soloShiftDurations = $this->formatSolodayShiftDurations($shifts);
+        $soloShiftDayTotalHours = $this->calculateTotalHoursSoloShiftDay($this->soloShiftDurations);
 
+        $dualShiftTotalHours = self::calculateTotalHours($this->singleMannedHoursCollection);
+        $singleShiftTotalHours = self::calculateTotalHours($this->singleHoursNonOverlapCollection);
 
-        dd($singleMannedHoursCollection);
+        $weekdaysTotalSingleHours = $this->createWeeklySingleHours($this->singleMannedHoursCollection,$weekdaysTotalSingleHours);
+        $weekdaysTotalSingleHours = $this->createWeeklySingleHours($this->singleHoursNonOverlapCollection,$weekdaysTotalSingleHours);
+        $weekdaysTotalSingleHours = $this->createWeeklySingleHours($this->soloShiftDurations,$weekdaysTotalSingleHours);
 
-        $weekdaysTotalSingleHours = self::createWeeklySingleHours($singleMannedHoursCollection,$weekdaysTotalSingleHours);
-        $weekdaysTotalSingleHours = self::createWeeklySingleHours($singleHoursNonOverlapCollection,$weekdaysTotalSingleHours);
-        $weekdaysTotalSingleHours = self::createWeeklySingleHours($soloShiftDurations,$weekdaysTotalSingleHours);
-
-//        echo '$singleMannedHoursCollection';
-//        var_dump($singleMannedHoursCollection);
-//        echo '$singleHoursNonOverlapCollection';
-//        var_dump($singleHoursNonOverlapCollection);
         dd($weekdaysTotalSingleHours);
 
 
@@ -103,12 +110,11 @@ class ShiftReportHelper
         return $overLap;
     }
 
-    private static function createWeeklySingleHours(array $singleHours, array $returnArray = []) : array
+    private function createWeeklySingleHours(array $singleHours, array $returnArray = []) : array
     {
         foreach ($singleHours as $shift) {
 
             foreach ($shift as $val) {
-
 
             if (!isset($returnArray[$val['shift_day']])) {
                 $returnArray[$val['shift_day']]['single_manned_hours'] = $val['single_manned_hours'];
@@ -122,7 +128,7 @@ class ShiftReportHelper
     }
 
 
-    private static function getSoloShiftDays(array $shifts) : array
+    private function getDaysSoloShifts(array $shifts) : array
     {
        $dayShiftCount = self::formatShiftsByDay($shifts);
        $dayShiftArr = [];
@@ -142,7 +148,14 @@ class ShiftReportHelper
         return date('D',strtotime($dateTime));
     }
 
-    private static function getDurationOfShifts(array $shifts) : array
+    /**
+     * Calculates single manned hours of a shift
+     *
+     * @param array $shifts
+     *
+     * @return array
+     */
+    private function getDurationOfShifts(array $shifts) : array
     {
         $shiftDurations = [];
 
@@ -151,15 +164,21 @@ class ShiftReportHelper
                 'start_diff' => [
                     'shift_id' => $shift['id'],
                     'shift_day' => self::formatShiftDay($shift['start_time']),
-                    'single_manned_hours' => self::calculateShiftDuration($shift)
+                    'single_manned_hours' => $this->calculateShiftDuration($shift)
                 ]
             ];
         }
-
         return $shiftDurations;
     }
 
-    private static function calculateShiftDuration(array $shift) : int
+    /**
+     * Calculates durations of a shift
+     *
+     * @param array $shift
+     *
+     * @return int
+     */
+    private function calculateShiftDuration(array $shift) : int
     {
         $shiftStartTime = new Carbon($shift['start_time']);
         $shiftEndTime   = new Carbon($shift['end_time']);
@@ -180,7 +199,7 @@ class ShiftReportHelper
          return $startTimeArr;
     }
 
-    private static function calculateTotalHoursSoloShiftDay(array $hoursArray)
+    private function calculateTotalHoursSoloShiftDay(array $hoursArray)
     {
         return  array_reduce($hoursArray, function($carry, $item){
             return ($carry + $item['start_diff']['single_manned_hours']);
@@ -196,7 +215,7 @@ class ShiftReportHelper
         });
     }
 
-    private static function isOverlapRecorded(array $recordedOverlap, array $aShift, array $bShift) : bool
+    private function isOverlapRecorded(array $recordedOverlap, array $aShift, array $bShift) : bool
     {
         $aShiftId = $aShift['id'];
         $bShiftId = $bShift['id'];
@@ -328,8 +347,6 @@ class ShiftReportHelper
         $startTimeBDate = new DateTime($startTimeB);
         $endTimeBDate = new DateTime($endTimeB);
 
-        //echo ' Times: '.$startTimeBDate->getTimestamp(). ' ' .$startTimeADate->getTimestamp().PHP_EOL;
-
         if (
             ($startTimeBDate->getTimestamp() >= $startTimeADate->getTimestamp())
             && ($endTimeADate->getTimestamp() > $startTimeBDate->getTimestamp())
@@ -347,10 +364,11 @@ class ShiftReportHelper
         return false;
     }
 
-    public static function generateShiftMannedReport() : bool
+    public function generateShiftMannedReport() : bool
     {
-        $shiftArray = Shifts::getShifts();
-        return self::calculateSingleMannedHours($shiftArray);
+        $shiftArray      = Shifts::getShifts();
+        $formattedShifts = $this->formatWithBreaks($shiftArray);
+        return $this->calculateSingleMannedHours($formattedShifts);
     }
 
     protected static function getShiftBreak(int $shiftId)
@@ -358,7 +376,14 @@ class ShiftReportHelper
         return ShiftBreaks::getShiftBreak($shiftId);
     }
 
-    private static function formatWithBreaks(array $shifts) : array
+    /**
+     * Divides shifts with breaks into individual shifts
+     *
+     * @param array $shifts
+     *
+     * @return array
+     */
+    private function formatWithBreaks(array $shifts) : array
     {
         $shiftBreakArray = [];
 
@@ -395,7 +420,6 @@ class ShiftReportHelper
                 $shift['has_break_shift'] = 1;
             }
         }
-
         return array_merge($shifts, $shiftBreakArray);
     }
 }
