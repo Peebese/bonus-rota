@@ -21,4 +21,14 @@ class ShiftBreaks extends Model
      * @var array
      */
     protected $hidden = [];
+
+    public static function getShiftBreak(int $shift_id)
+    {
+        return self::query()
+            ->select(['id', 'start_time', 'end_time'])
+            ->where('shift_id','=', $shift_id)
+            ->get()
+            ->toArray();
+        ;
+    }
 }

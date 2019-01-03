@@ -17,14 +17,12 @@ class ShiftBreaksTableSeeder extends Seeder
         $dateDay = 10;
 
         $wolverineShiftId  = DB::table('shifts')
-            ->select()
+            ->select(['shifts.id'])
             ->where(['first_name' => 'Wolverine'])
             ->whereDay('start_time','=', $dateDay)
             ->leftJoin('staff', 'shifts.staff_id','=','staff.id')
             ->first()->id
         ;
-
-        //dd($wolverineShiftId);
 
         $gamoraShiftId  = DB::table('shifts')
             ->select(['shifts.id'])
@@ -37,13 +35,13 @@ class ShiftBreaksTableSeeder extends Seeder
         $data = [
             [
                 'shift_id'      => $wolverineShiftId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,$dateDay,12,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,$dateDay,13,0)
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,$dateDay,12,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,$dateDay,13,0)->toDateTimeString()
             ],
             [
                 'shift_id'      => $gamoraShiftId,
-                'start_time'    => $carbonDateObj->setDateTime(2019,1,$dateDay,14,0),
-                'end_time'      => $carbonDateObj->setDateTime(2019,1,$dateDay,15,0)
+                'start_time'    => $carbonDateObj->setDateTime(2019,1,$dateDay,14,0)->toDateTimeString(),
+                'end_time'      => $carbonDateObj->setDateTime(2019,1,$dateDay,15,0)->toDateTimeString()
             ],
 
         ];

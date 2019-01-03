@@ -70,7 +70,7 @@ class StaffRotaTable extends Migration
         Schema::dropIfExists('shift_breaks');
         Schema::dropIfExists('shifts');
         Schema::dropIfExists('rotas');
-        Schema::dropIfExists('shops');
         Schema::dropIfExists('staff');
+        Schema::dropIfExists('shops');
     }
 }

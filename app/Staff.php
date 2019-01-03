@@ -21,29 +21,4 @@ class Staff extends Model
      * @var array
      */
     protected $hidden = [];
-
-    public function insertStaff() : void
-    {
-        $data = [
-            [
-                'first_name' => 'Black',
-                'surname'   => 'Widow',
-                'shop_id'   => 1
-            ],
-            [
-                'first_name' => 'Thor',
-                'shop_id'   => 1
-            ],
-            [
-                'first_name' => 'Wolverine',
-                'shop_id'   => 1
-            ],
-            [
-                'first_name' => 'Gamora',
-                'shop_id'   => 1
-            ]
-        ];
-
-        self::query()->insert($data);
-    }
 }

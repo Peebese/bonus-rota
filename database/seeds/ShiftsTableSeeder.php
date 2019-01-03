@@ -20,16 +20,11 @@ class ShiftsTableSeeder extends Seeder
         $wolverineId    = DB::table('staff')->select()->where(['first_name' => 'Wolverine'])->first()->id;
         $gamoraId       = DB::table('staff')->select()->where(['first_name' => 'Gamora'])->first()->id;
 
-
         $rotaId = DB::table('rotas')
             ->select()
-            ->where(['name' => 'FunHouse'])
+            ->where(['name' => 'Fun House'])
             ->leftJoin('shops','rotas.shop_id','=','shops.id')
             ->first()->id;
-
-//        dd([
-//            $blackId, $thorId, $wolverineId, $gamoraId, $rotaId
-//        ]);
 
         $data = [
             // Monday, Black widow works alone

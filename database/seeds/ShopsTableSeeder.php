@@ -14,7 +14,7 @@ class ShopsTableSeeder extends Seeder
     public function run()
     {
         DB::table('shops')->insert([
-            'name' => 'FunHouse'
+            'name' => 'Fun House'
         ]);
     }
 }

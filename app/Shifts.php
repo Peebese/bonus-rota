@@ -21,4 +21,24 @@ class Shifts extends Model
      * @var array
      */
     protected $hidden = [];
+
+
+    protected static function getShifts() : array
+    {
+        return self::query()
+            ->select([
+                'shifts.id',
+                'rota_id',
+                'shop_id',
+                'first_name',
+                'shifts.start_time',
+                'shifts.end_time',
+                'shift_breaks.start_time AS break_start_time',
+                'shift_breaks.end_time AS break_end_time'
+            ])
+            ->leftJoin('shift_breaks','shifts.id','=','shift_breaks.shift_id')
+            ->leftJoin('staff','shifts.staff_id','=','staff.id')
+            ->get()
+            ->toArray();
+    }
 }

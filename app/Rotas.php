@@ -21,14 +21,4 @@ class Rotas extends Model
      * @var array
      */
     protected $hidden = [];
-
-    public function insertRotas()
-    {
-        $data = [
-            'shop_id' => 1,
-            'week_commence_date' => date('Y-m-d',strtotime('2019-'))
-        ];
-
-
-    }
 }
