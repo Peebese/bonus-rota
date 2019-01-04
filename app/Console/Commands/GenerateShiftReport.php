@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ShiftReport\ShiftReportHelper;
-use App\Shifts;
 use Illuminate\Console\Command;
 
 class GenerateShiftReport extends Command
@@ -39,9 +37,10 @@ class GenerateShiftReport extends Command
      */
     public function handle()
     {
-        $getShifts = new ShiftReportHelper();
-        $getShifts->generateShiftMannedReport();
+        $getShifts      = app()->make('shiftReporter');
+        $weeklyReport   = $getShifts->generateShiftMannedReport();
+        $response       = Response()->json($weeklyReport)->content();
 
-        //$this->info('lol');
+        $this->info($response);
     }
 }
